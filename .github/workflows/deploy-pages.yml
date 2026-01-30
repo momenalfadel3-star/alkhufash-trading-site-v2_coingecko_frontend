@@ -31,7 +31,6 @@ jobs:
         shell: bash
         run: |
           set -e
-          # Prefer root, then client, then first found package.json (excluding node_modules)
           if [ -f "package.json" ]; then
             echo "workdir=." >> "$GITHUB_OUTPUT"
           elif [ -f "client/package.json" ]; then
@@ -46,9 +45,9 @@ jobs:
             echo "workdir=$dir" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Install dependencies
+      - name: Install dependencies (avoid peer-deps conflicts)
         working-directory: ${{ steps.detect.outputs.workdir }}
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build
         working-directory: ${{ steps.detect.outputs.workdir }}
@@ -60,10 +59,6 @@ jobs:
         run: |
           set -e
           wd="${{ steps.detect.outputs.workdir }}"
-          # Common outputs:
-          # - Vite: dist (sometimes dist/public)
-          # - CRA: build
-          # We check both in workdir and repo root (some configs output to root dist)
           candidates=(
             "$wd/dist/public"
             "$wd/dist"
@@ -72,7 +67,6 @@ jobs:
             "dist"
             "build"
           )
-
           for p in "${candidates[@]}"; do
             if [ -d "$p" ]; then
               echo "path=$p" >> "$GITHUB_OUTPUT"
@@ -80,7 +74,6 @@ jobs:
               exit 0
             fi
           done
-
           echo "No build output folder found. Checked: ${candidates[*]}"
           exit 1
 
