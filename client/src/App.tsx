@@ -15,7 +15,7 @@ import Technology from "./pages/Technology";
 function Router() {
   return (
     <Switch>
-      <Route path={"/ "} component={Home} />
+      <Route path={"/"} component={Home} />
       <Route path={"/blog"} component={Blog} />
       <Route path={"/crypto"} component={Crypto} />
       <Route path={"/trading"} component={Trading} />
