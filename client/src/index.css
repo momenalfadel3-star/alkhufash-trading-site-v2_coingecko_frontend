@@ -1,0 +1,217 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Import Google Fonts for Modern Finance Design */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  /* Modern Finance Design - Prussian Blue Theme */
+  --primary: #003D82; /* Prussian Blue */
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #003D82;
+  --sidebar-primary-foreground: #FFFFFF;
+  
+  /* Chart Colors - Green for gains, Red for losses */
+  --chart-1: #00D084; /* Vibrant Green */
+  --chart-2: #003D82; /* Prussian Blue */
+  --chart-3: #E63946; /* Soft Red */
+  --chart-4: #1E88E5; /* Light Blue */
+  --chart-5: #00D084; /* Vibrant Green */
+  
+  --radius: 0.65rem;
+  --background: #FFFFFF;
+  --foreground: #1A1A1A;
+  --card: #F8F9FA;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --secondary: #F0F4F8;
+  --secondary-foreground: #003D82;
+  --muted: #E0E7F1;
+  --muted-foreground: #666666;
+  --accent: #00D084;
+  --accent-foreground: #FFFFFF;
+  --destructive: #E63946;
+  --destructive-foreground: #FFFFFF;
+  --border: #E0E7F1;
+  --input: #F8F9FA;
+  --ring: #003D82;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-accent: #F0F4F8;
+  --sidebar-accent-foreground: #003D82;
+  --sidebar-border: #E0E7F1;
+  --sidebar-ring: #003D82;
+}
+
+.dark {
+  /* Dark Mode - Modern Finance */
+  --primary: #1E88E5;
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #1E88E5;
+  --sidebar-primary-foreground: #FFFFFF;
+  --background: #0F1419;
+  --foreground: #E8EAED;
+  --card: #1A1F2E;
+  --card-foreground: #E8EAED;
+  --popover: #1A1F2E;
+  --popover-foreground: #E8EAED;
+  --secondary: #2A3142;
+  --secondary-foreground: #B3D9FF;
+  --muted: #3A4251;
+  --muted-foreground: #9CA3AF;
+  --accent: #00D084;
+  --accent-foreground: #0F1419;
+  --destructive: #FF6B6B;
+  --destructive-foreground: #0F1419;
+  --border: #2A3142;
+  --input: #1A1F2E;
+  --ring: #1E88E5;
+  --chart-1: #00D084;
+  --chart-2: #1E88E5;
+  --chart-3: #FF6B6B;
+  --chart-4: #64B5F6;
+  --chart-5: #00D084;
+  --sidebar: #1A1F2E;
+  --sidebar-foreground: #E8EAED;
+  --sidebar-accent: #2A3142;
+  --sidebar-accent-foreground: #B3D9FF;
+  --sidebar-border: #2A3142;
+  --sidebar-ring: #1E88E5;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+  }
+  
+  code, pre {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+  
+  /* Modern Finance Typography */
+  h1 {
+    @apply text-4xl md:text-5xl font-bold tracking-tight;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl font-bold tracking-tight;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl font-bold;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl font-semibold;
+  }
+  
+  p {
+    @apply text-base leading-relaxed;
+  }
+}
+
+@layer components {
+  /**
+   * Custom container utility that centers content and adds responsive padding.
+   *
+   * This overrides Tailwind's default container behavior to:
+   * - Auto-center content (mx-auto)
+   * - Add responsive horizontal padding
+   * - Set max-width for large screens
+   *
+   * Usage: <div className="container">...</div>
+   *
+   * For custom widths, use max-w-* utilities directly:
+   * <div className="max-w-6xl mx-auto px-4">...</div>
+   */
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem; /* 16px - mobile padding */
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem; /* 32px - desktop padding */
+      padding-right: 2rem;
+      max-width: 1280px; /* Standard content width */
+    }
+  }
+}
