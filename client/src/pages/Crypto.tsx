@@ -22,28 +22,51 @@ import {
   Cell,
 } from 'recharts';
 
+/* 🔐 حماية أرقام – محلية للملف (عشان ما نعتمد على ملفات تانية) */
+function safeNum(value: unknown, fallback = 0) {
+  const n =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+      ? Number(value.replace(/,/g, ''))
+      : NaN;
+
+  return Number.isFinite(n) ? n : fallback;
+}
+
 export default function Crypto() {
   const { language } = useLanguage();
   const isArabic = language === 'ar';
-  const { data: cryptoData, loading: cryptoLoading, error: cryptoError } = useCryptoData();
-  const displayCryptoData = cryptoData.length > 0 ? cryptoData : defaultCryptoData;
 
-  // 30-day price charts for BTC + ETH (client-side, no server)
-  const { series, loading: chartsLoading } = useMarketCharts(['bitcoin', 'ethereum'], 30);
+  const {
+    data: cryptoData,
+    loading: cryptoLoading,
+    error: cryptoError,
+  } = useCryptoData();
 
-  const btcSeries = series.bitcoin ?? [];
-  const ethSeries = series.ethereum ?? [];
+  const displayCryptoData =
+    cryptoData && cryptoData.length > 0 ? cryptoData : defaultCryptoData;
 
-  // Merge BTC+ETH series by index (they have same length typically after reduction)
+  // Charts (BTC + ETH)
+  const { series, loading: chartsLoading } = useMarketCharts(
+    ['bitcoin', 'ethereum'],
+    30
+  );
+
+  const btcSeries = series?.bitcoin ?? [];
+  const ethSeries = series?.ethereum ?? [];
+
+  // 🔐 دمج البيانات مع حماية كاملة
   const priceData = btcSeries.map((p, idx) => ({
-    name: p.name,
-    BTC: Number(p.price.toFixed(2)),
-    ETH: Number((ethSeries[idx]?.price ?? 0).toFixed(2)),
+    name: p?.name ?? '',
+    BTC: safeNum(p?.price),
+    ETH: safeNum(ethSeries[idx]?.price),
   }));
 
+  // 🔐 Market cap pie chart
   const marketCapData = displayCryptoData.map((crypto) => ({
     name: crypto.symbol,
-    value: crypto.marketCap,
+    value: safeNum(crypto.marketCap),
   }));
 
   const COLORS = ['#003D82', '#00D084', '#E63946', '#1E88E5', '#7C3AED'];
@@ -56,29 +79,39 @@ export default function Crypto() {
         {/* Page Header */}
         <section className="py-12 bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border">
           <div className="container">
-            <h1 className="text-4xl font-bold mb-4">{isArabic ? 'العملات الرقمية' : 'Cryptocurrencies'}</h1>
+            <h1 className="text-4xl font-bold mb-4">
+              {isArabic ? 'العملات الرقمية' : 'Cryptocurrencies'}
+            </h1>
             <p className="text-lg text-muted-foreground">
               {isArabic
                 ? 'متابعة حية لأسعار العملات الرقمية والتحليلات السوقية'
                 : 'Live tracking of cryptocurrency prices and market analysis'}
             </p>
-            {cryptoError ? (
+
+            {cryptoError && (
               <p className="mt-3 text-sm text-destructive">
-                {isArabic ? 'تعذر جلب البيانات الآن. سيتم استخدام بيانات افتراضية.' : 'Failed to fetch live data. Showing fallback data.'}
+                {isArabic
+                  ? 'تعذر جلب البيانات الآن. سيتم استخدام بيانات افتراضية.'
+                  : 'Failed to fetch live data. Showing fallback data.'}
               </p>
-            ) : null}
+            )}
           </div>
         </section>
 
         {/* Market Overview */}
         <section className="py-12">
           <div className="container">
-            <h2 className="text-2xl font-bold mb-8">{isArabic ? 'نظرة عامة على السوق' : 'Market Overview'}</h2>
+            <h2 className="text-2xl font-bold mb-8">
+              {isArabic ? 'نظرة عامة على السوق' : 'Market Overview'}
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-              {/* Price Trend Chart */}
+              {/* Price Trend */}
               <Card className="p-6">
-                <h3 className="text-xl font-semibold mb-4">{isArabic ? 'اتجاه السعر (30 يوم)' : 'Price Trend (30 days)'}</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  {isArabic ? 'اتجاه السعر (30 يوم)' : 'Price Trend (30 days)'}
+                </h3>
+
                 <div className="h-[300px]">
                   {chartsLoading ? (
                     <div className="h-full flex items-center justify-center">
@@ -91,20 +124,34 @@ export default function Crypto() {
                         <XAxis dataKey="name" />
                         <YAxis />
                         <Tooltip />
-                        <Line type="monotone" dataKey="BTC" stroke="#003D82" strokeWidth={2} dot={false} />
-                        <Line type="monotone" dataKey="ETH" stroke="#00D084" strokeWidth={2} dot={false} />
+                        <Line
+                          type="monotone"
+                          dataKey="BTC"
+                          stroke="#003D82"
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="ETH"
+                          stroke="#00D084"
+                          strokeWidth={2}
+                          dot={false}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   )}
                 </div>
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {isArabic ? 'مصدر البيانات: CoinGecko (تحديث دوري).' : 'Data source: CoinGecko (periodic refresh).'}
-                </p>
               </Card>
 
               {/* Market Cap Distribution */}
               <Card className="p-6">
-                <h3 className="text-xl font-semibold mb-4">{isArabic ? 'توزيع القيمة السوقية' : 'Market Cap Distribution'}</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  {isArabic
+                    ? 'توزيع القيمة السوقية'
+                    : 'Market Cap Distribution'}
+                </h3>
+
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -112,36 +159,30 @@ export default function Crypto() {
                         data={marketCapData}
                         cx="50%"
                         cy="50%"
-                        labelLine={false}
                         outerRadius={100}
-                        fill="#8884d8"
                         dataKey="value"
                         nameKey="name"
                       >
                         {marketCapData.map((_, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell
+                            key={index}
+                            fill={COLORS[index % COLORS.length]}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  {marketCapData.map((entry, index) => (
-                    <div key={entry.name} className="flex items-center gap-2 text-sm">
-                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                      <span>
-                        {entry.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </Card>
             </div>
 
             {/* Crypto Cards */}
             <div className="mb-10">
-              <h3 className="text-xl font-semibold mb-6">{isArabic ? 'أهم العملات' : 'Top Coins'}</h3>
+              <h3 className="text-xl font-semibold mb-6">
+                {isArabic ? 'أهم العملات' : 'Top Coins'}
+              </h3>
+
               {cryptoLoading ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -157,13 +198,18 @@ export default function Crypto() {
 
             {/* Volume Comparison */}
             <Card className="p-6">
-              <h3 className="text-xl font-semibold mb-4">{isArabic ? 'مقارنة حجم التداول (24 ساعة)' : '24h Volume Comparison'}</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                {isArabic
+                  ? 'مقارنة حجم التداول (24 ساعة)'
+                  : '24h Volume Comparison'}
+              </h3>
+
               <div className="h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={displayCryptoData.map((c) => ({
                       name: c.symbol,
-                      volume: c.volume24h,
+                      volume: safeNum(c.volume24h),
                     }))}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
@@ -174,9 +220,6 @@ export default function Crypto() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
-                {isArabic ? 'يتم تحديث البيانات كل 60 ثانية.' : 'Data refreshes every 60 seconds.'}
-              </p>
             </Card>
           </div>
         </section>
