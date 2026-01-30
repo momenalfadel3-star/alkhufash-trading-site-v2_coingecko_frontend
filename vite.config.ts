@@ -153,6 +153,10 @@ function vitePluginManusDebugCollector(): Plugin {
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
 export default defineConfig({
+  // ✅ مهم جداً لـ GitHub Pages (Project Pages)
+  // لازم يطابق اسم الريبو بالضبط:
+  base: "/alkhufash-trading-site-v2_coingecko_frontend/",
+
   plugins,
   resolve: {
     alias: {
