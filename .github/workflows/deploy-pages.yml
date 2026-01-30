@@ -25,18 +25,69 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
-      - name: Install
+      - name: Detect project directory (package.json)
+        id: detect
+        shell: bash
+        run: |
+          set -e
+          # Prefer root, then client, then first found package.json (excluding node_modules)
+          if [ -f "package.json" ]; then
+            echo "workdir=." >> "$GITHUB_OUTPUT"
+          elif [ -f "client/package.json" ]; then
+            echo "workdir=client" >> "$GITHUB_OUTPUT"
+          else
+            found="$(find . -name package.json -not -path '*/node_modules/*' -not -path '*/.git/*' | head -n 1)"
+            if [ -z "$found" ]; then
+              echo "No package.json found anywhere."
+              exit 1
+            fi
+            dir="$(dirname "$found")"
+            echo "workdir=$dir" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies
+        working-directory: ${{ steps.detect.outputs.workdir }}
         run: npm install
 
       - name: Build
+        working-directory: ${{ steps.detect.outputs.workdir }}
         run: npm run build
+
+      - name: Detect build output directory
+        id: out
+        shell: bash
+        run: |
+          set -e
+          wd="${{ steps.detect.outputs.workdir }}"
+          # Common outputs:
+          # - Vite: dist (sometimes dist/public)
+          # - CRA: build
+          # We check both in workdir and repo root (some configs output to root dist)
+          candidates=(
+            "$wd/dist/public"
+            "$wd/dist"
+            "$wd/build"
+            "dist/public"
+            "dist"
+            "build"
+          )
+
+          for p in "${candidates[@]}"; do
+            if [ -d "$p" ]; then
+              echo "path=$p" >> "$GITHUB_OUTPUT"
+              echo "Using output: $p"
+              exit 0
+            fi
+          done
+
+          echo "No build output folder found. Checked: ${candidates[*]}"
+          exit 1
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/public
+          path: ${{ steps.out.outputs.path }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -45,6 +96,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
